@@ -1,0 +1,34 @@
+---
+title: "PML Project"
+author: "Clyde Tressler"
+date: "January 9, 2016"
+output: html_document
+---
+
+setwd("/home/clyde/practical-ML-project")
+#process training/validation sets
+train.valid <- read.csv("pml-training.csv")
+test <- read.csv("pml-testing.csv")
+f <- function(c){all(is.na(c))}
+apply(train.valid, 2, f)
+any(apply(train.valid, 2, f)==TRUE)
+#find Na %
+f1 <- function(c){sum(is.na(c))/length(c)*100}
+apply(train.valid, 2, f1)
+apply(train.valid, 2, f1) >50
+sum(apply(train.valid, 2, f1) >50)
+a <- apply(train.valid, 2, f1)
+#lots of columns with a lot of NAs all >97%
+sum(a>0&a<97)
+which(a>97)
+many.na <- names(which(a>97))
+library(dplyr)
+ sum(train.valid$new_window=='no')
+[1] 19216
+sum(train.valid$new_window=='no')/nrow(train.valid)
+train.valid <- select(train.valid, -new_window)
+f3 <- function(c){levels(c)==2}
+apply(train.valid, 2, f3)
+#X is just a row number
+train.valid <- select(train.valid, -X)
+#we don't want time-dependent data
