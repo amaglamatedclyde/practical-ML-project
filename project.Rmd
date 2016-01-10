@@ -10,7 +10,9 @@ setwd("/home/clyde/practical-ML-project")
 train.valid <- read.csv("pml-training.csv")
 test <- read.csv("pml-testing.csv")
 f <- function(c){all(is.na(c))}
+f2 <- function(c){any(is.na(c))}
 apply(train.valid, 2, f)
+any(apply(train.valid, 2, f2)) #any NAs? no!
 any(apply(train.valid, 2, f)==TRUE)
 #find Na %
 f1 <- function(c){sum(is.na(c))/length(c)*100}
@@ -32,3 +34,16 @@ apply(train.valid, 2, f3)
 #X is just a row number
 train.valid <- select(train.valid, -X)
 #we don't want time-dependent data
+library(caret)
+train.valid <- select(train.valid, -contains('timestamp'))
+nzv <- nearZeroVar(train.valid[-88], saveMetrics= TRUE) #find nzv vars
+nzv <- subset(nzv, freqRatio>60&nzv) #threshold nzv vars
+set.seed(314159)
+inTrain <- createDataPartition(y=train.valid$classe, p=0.9, list=FALSE)
+training <- train.valid[inTrain,]
+testing <- train.valid[-inTrain,]
+inTrain <- createDataPartition(y=training$classe, p=0.8, list=FALSE)
+train <- training[inTrain,]
+validation <- training[-inTrain,]
+library(caret)
+training <- train
