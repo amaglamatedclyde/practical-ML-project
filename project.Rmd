@@ -7,7 +7,11 @@ output: html_document
 
 ####Summary
 We present an analysis of the classification of qualitative evaluations of weight-lifting exercises. 
-A boosted trees algorithm was trained on the [Weight Lifting Exercises Dataset](http://groupware.les.inf.puc-rio.br/static/WLE/WearableComputing_weight_lifting_exercises_biceps_curl_variations.csv). The prediction accuracy was found to be **99.6%** on a hold-out test set. This algorithm scored 20 out of 20 on a first attempt at the **Course Project Prediction Quiz Portion**.
+A boosted trees algorithm was trained on the [Weight Lifting Exercises Dataset](http://groupware.les.inf.puc-rio.br/static/WLE/WearableComputing_weight_lifting_exercises_biceps_curl_variations.csv). **The model scored perfectly on a hold-out test set, with 0 misclassifications and a 95% confidence interval of (0.9981, 1) "**. This algorithm scored 20 out of 20 on a first attempt at the **Course Project Prediction Quiz Portion**. 
+
+###A Note on Terminology
+
+
 
 ####Background
 <p>The data were originally collected and analyzed in this paper:</p>
@@ -19,7 +23,7 @@ The authors describe the dataset as follows:
 <div text-align="center">
 <p>*Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E). Class A corresponds to the specified execution of the exercise, while the other 4 classes correspond to common mistakes.*</p>
 </div>
-Here we show a table of the occernces of the five classes in the training set.
+Here we show a table of the occurrences of the five classes in the training set.
 
 ```{r, echo=FALSE, message=FALSE}
 library(dplyr)
@@ -30,7 +34,7 @@ table(train.valid$classe)
 
 ####Exploring and Tidying the Data
 
-Exploration of the data show many sparse columns for which 97.93% of the values are NAs. These variables will not be included in the anaysis. For bresvity, The R code for these cleaning steps has not been included but can be fouind in this [github repository](https://github.com/amaglamatedclyde/practical-ML-project). The reamining variables are free of NA values and are consudered to be candidates for inclusin in the anaysis. Because we intend to use a boosted tree algorithm, collinearity of the reamining varaibles is not investigated at this step.
+Exploration of the data show many sparse columns for which 97.93% of the values are NAs. These variables will not be included in the analysis. For brevity, The R code for these cleaning steps has not been included but can be found in this [github repository](https://github.com/amaglamatedclyde/practical-ML-project). The remaining variables are free of NA values and are considered to be candidates for inclusion in the analysis. Because we intend to use a boosted tree algorithm, collinearity of the remaining variables is not investigated at this step.
 
 ```{r, echo=F, include=FALSE}
 #here we check to see the frequency of occurences of NA in the columns as a percentage. 
@@ -52,7 +56,7 @@ many.na <- names(which(a>97))
 train.valid <- select(train.valid, -one_of(many.na))
 ```
 
-Next we observe that the column labelled 'X' is just an index number and is not a valid predictor. Several variables are timestamps. Since we are intersted in classifying individual observations, these can also be excluded. Also, we search the columns for near zero variance variables and threshold this at a frequency ratio of 60 to eliminate the follwing predictors:
+Next we observe that the column labelled 'X' is just an index number and is not a valid predictor. Several variables are timestamps. Since we are interested in classifying individual observations, these can also be excluded. Also, we search the columns for near zero variance variables and threshold this at a frequency ratio of 60 to eliminate the following predictors:
 
 ```{r, include=F}
 sum(train.valid$new_window=='no')
@@ -77,7 +81,7 @@ nzv
 
 ####Training the Classifier
 
-An examination of the training dataset shows that is has been sorted according to the class outcome. We therefor use the following methodolgy to randomly sample the rows, creating a training, validation and test set to build and evaluate our model. Here we use the validation set to tune the model and the testing set is our hold-out set. We choose a validation set that is nearly twice the size of the testing set so we can evalutate the bias of the model using the larger number of samples in the validation set and the variance of the model using the smaller number of observations in the testing set.
+An examination of the training dataset shows that is has been sorted according to the class outcome. We therefor use the following methodology to randomly sample the rows, creating a training, validation and test set to build and evaluate our model. Here we use the validation set to tune the model and the testing set is our hold-out set. We choose a validation set that is nearly twice the size of the testing set so we can evaluate the bias of the model using the larger number of samples in the validation set and the variance of the model using the smaller number of observations in the testing set.
 
 ```{r, output="hide"}
 set.seed(314159)
@@ -94,19 +98,29 @@ validation <- training[!include,]
 library(caret)
 training <- train
 # which(names(training2)=="num_window")
-training <- training[-2]
+# training <- training[-2]
+# fitControl <- trainControl(## 10-fold CV
+#                            method = "cv",
+#                            number = 10)
+#                            ## repeated ten times
+#                            # repeats = 10)
+# fit1 <- system.time(train(classe~., data=training, method="xgbTree"))
+#     user   system  elapsed 
+# 8971.363    5.527  796.503
 fit1 <- train(classe~., data=training, method="xgbTree")
-preds <- predict(fit1, testing)
+preds <- predict(fit1, validation)
 ```
 ####Choosing an Algorithm
-Our initial choice of an algorith for our classification model is [Extreme Gradient Boosting](http://startup.ml/blog/xgboost), which has garnered a reputation for extraordinary out-of-the-box **(OOB)** performance on [kaggle.com](kaggle.com) competitions. 
+Our initial choice of an algorithm for our classification model is [Extreme Gradient Boosting](http://startup.ml/blog/xgboost), which has garnered a reputation for extraordinary out-of-the-box **(OOB)** performance on [kaggle.com](kaggle.com) competitions. 
 
-We train on a set of **14220** observations in the **training set** and evaluate predictions on the **3473** observations in the validation set. The confuion matrix is shown below. 
+We train on a set of **14220** observations in the **training set** and evaluate predictions on the **3473** observations in the validation set. The confusion matrix is shown below. 
 
 ```{r, echo=F}
-confusionMatrix(preds, testing$classe)
+confusionMatrix(preds, validation$classe)
 ```
-####Performance on the Course Prediction Assignment
-This investigator was fully prepared to cross-validate tuning parameters and stack multiple models to improve prediction. However, the 99.94% accuracy of the OOB predictions of the xgboost algorithm led directly to an assesment on the test set, which showed similar accuracy. At this point it seemed foolish not to attmept the prediction portion of the course assessment. This resulted in 20 correct predictions out of 20 trials.
+####Performance
+This investigator was fully prepared to cross-validate tuning parameters and stack multiple models to improve prediction. However, the **99.94% accuracy on the validation set** using the xgboost algorithm with default settings led directly to an assessment on the test set. The test set performed even better, with 0 misclassifications. The 95% confidence interval was shown to be **95% CI : (0.9981, 1) on the hold-out test set.** At this point it seemed foolish not to attempt the prediction portion of the course assessment. This resulted in 20 correct predictions out of 20 trials.
 
-Admittedly, this success is mostly attributable to the power of the XGBoost algorithm, which is mostly a black box to this investigator. It can be assumed however that the predictor selection process
+The xgbTree algorithm is well-optimized for speed and fully utilized all 6 hyper-threaded cores (12 virtual CPUs) during the model calculation. Memory use was modest, around 5GB. The elapsed time of the computation was around 13 minutes.
+
+Admittedly, the success of this effort is mostly attributable to the power of the XGBoost algorithm, and that is somewhat of a black box to this investigator. It can be assumed, however, that the predictor selection process was also crucial to the success of the algorithm.
