@@ -1,21 +1,30 @@
----
-title: "Classification of the Qualitative Evaluation of Weight Lifting Exercises"
-author: "Clyde Tressler"
-date: "January 10, 2016"
-output: html_document
+
 ---
 
+
+---
+<div style="text-align:center;">
+##Classification of the Qualitative Evaluation of Weight Lifting Exercises
+###*Clyde Tressler*
+January 10, 2016
+</div>
 ####Summary
 We present an analysis of the classification of qualitative evaluations of weight-lifting exercises. 
 A boosted trees algorithm was trained on the [Weight Lifting Exercises Dataset](http://groupware.les.inf.puc-rio.br/static/WLE/WearableComputing_weight_lifting_exercises_biceps_curl_variations.csv). **The model scored perfectly on a hold-out test set, with 0 misclassifications and a 95% confidence interval of (0.9981, 1) "**. This algorithm scored 20 out of 20 on a first attempt at the **Course Project Prediction Quiz Portion**. 
 
-###A Note on Terminology
+####A Note on Terminology
+In this report we use the terminology **validation set** and **test set** to refer to a *tuning* and *hold-out* set respectively. 
+This is consistent with  **[The Elements of Statistical Learning](http://statweb.stanford.edu/~tibs/ElemStatLearn/)**(Hastie et al.) page 222. This is widely recognized as a seminal text in the field:
+<div style="text-align:center;">
 
-
+*"The training set is used to fit the models; the validation
+set is used to estimate prediction error for model selection; the test set is
+used for assessment of the generalization error of the final chosen model."*
+</div>
 
 ####Background
 <p>The data were originally collected and analyzed in this paper:</p>
-0.996 
+
 **Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. [Qualitative Activity Recognition of Weight Lifting Exercises](http://groupware.les.inf.puc-rio.br/work.jsf?p1=11201). Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.**
 
 The authors describe the dataset as follows:
@@ -23,7 +32,7 @@ The authors describe the dataset as follows:
 <div text-align="center">
 <p>*Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E). Class A corresponds to the specified execution of the exercise, while the other 4 classes correspond to common mistakes.*</p>
 </div>
-Here we show a table of the occurrences of the five classes in the training set.
+Here we show a table of the occurrences of the five classes in the training set. Note that the 'mistake' classes have similar sample numbers and the 'correctly performed' class is greater than any other individual class. 
 
 ```{r, echo=FALSE, message=FALSE}
 library(dplyr)
@@ -34,7 +43,9 @@ table(train.valid$classe)
 
 ####Exploring and Tidying the Data
 
-Exploration of the data show many sparse columns for which 97.93% of the values are NAs. These variables will not be included in the analysis. For brevity, The R code for these cleaning steps has not been included but can be found in this [github repository](https://github.com/amaglamatedclyde/practical-ML-project). The remaining variables are free of NA values and are considered to be candidates for inclusion in the analysis. Because we intend to use a boosted tree algorithm, collinearity of the remaining variables is not investigated at this step.
+Exploration of the data show many sparse columns for which 97.93% of the values are NAs. These variables will not be included in the analysis. For brevity, the R code for these cleaning steps has not been included but can be found in this [github repository](https://github.com/amaglamatedclyde/practical-ML-project). 
+
+The remaining variables are free of NA values and are considered to be candidates for inclusion in the analysis. Because we intend to use a boosted tree algorithm, collinearity of these variables is not investigated at this step.
 
 ```{r, echo=F, include=FALSE}
 #here we check to see the frequency of occurences of NA in the columns as a percentage. 
@@ -56,7 +67,10 @@ many.na <- names(which(a>97))
 train.valid <- select(train.valid, -one_of(many.na))
 ```
 
-Next we observe that the column labelled 'X' is just an index number and is not a valid predictor. Several variables are timestamps. Since we are interested in classifying individual observations, these can also be excluded. Also, we search the columns for near zero variance variables and threshold this at a frequency ratio of 60 to eliminate the following predictors:
+Next we observe that the column labeled 'X' is just an index number and therefor not a valid predictor. Several variables are timestamps. Since we are interested in classifying individual observations, these timestamp columns can also be excluded. Also, we search the columns for near zero variance variables and threshold this at a conservative frequency ratio of 60 to eliminate the following predictors:[^mynote1]
+
+[^mynote1]: Near-zero variance means that the fraction of unique values over the sample size is low (say 10%)... and the ratio of the frequency of the most prevalent value to the frequency of the second most prevalent value is large (say around 20). If both of these criteria are true and the model in question is susceptible to this type of predictor, it may be advantageous to remove the variable from the model. (Kuhn, M., & Johnson, K. (2013). **Applied Predictive Modeling**, New York, NY: Springer)
+
 
 ```{r, include=F}
 sum(train.valid$new_window=='no')
@@ -81,7 +95,7 @@ nzv
 
 ####Training the Classifier
 
-An examination of the training dataset shows that is has been sorted according to the class outcome. We therefor use the following methodology to randomly sample the rows, creating a training, validation and test set to build and evaluate our model. Here we use the validation set to tune the model and the testing set is our hold-out set. We choose a validation set that is nearly twice the size of the testing set so we can evaluate the bias of the model using the larger number of samples in the validation set and the variance of the model using the smaller number of observations in the testing set.
+An examination of the training dataset shows that is has been sorted according to the class outcome. We therefor use the following methodology to randomly sample the rows, creating a training, validation and test set to build and evaluate our model. Here we use the validation set to tune the model and the testing set as our hold-out set. We choose a validation set that is nearly twice the size of the testing set so we can evaluate the bias of the model using the larger number of samples in the validation set and the variance of the model using the smaller number of observations in the testing set.
 
 ```{r, output="hide"}
 set.seed(314159)
@@ -101,7 +115,7 @@ training <- train
 # training <- training[-2]
 # fitControl <- trainControl(## 10-fold CV
 #                            method = "cv",
-#                            number = 10)
+#                            number = 10)fit1 <- system.time(train(classe~., data=training, method="xgbTree"))
 #                            ## repeated ten times
 #                            # repeats = 10)
 # fit1 <- system.time(train(classe~., data=training, method="xgbTree"))
@@ -111,15 +125,24 @@ fit1 <- train(classe~., data=training, method="xgbTree")
 preds <- predict(fit1, validation)
 ```
 ####Choosing an Algorithm
-Our initial choice of an algorithm for our classification model is [Extreme Gradient Boosting](http://startup.ml/blog/xgboost), which has garnered a reputation for extraordinary out-of-the-box **(OOB)** performance on [kaggle.com](kaggle.com) competitions. 
+Our initial choice of an algorithm for our classification model is [Extreme Gradient Boosting](http://startup.ml/blog/xgboost), which has garnered a reputation for extraordinary out-of-the-box **(OOB)** performance on [kaggle.com](http://kaggle.com) competitions. 
 
-We train on a set of **14220** observations in the **training set** and evaluate predictions on the **3473** observations in the validation set. The confusion matrix is shown below. 
+We train on a set of **14220** observations in the **training set** and evaluate predictions on the **3473** observations in the validation set. The confusion matrix for the validation set is shown below. 
 
 ```{r, echo=F}
 confusionMatrix(preds, validation$classe)
 ```
 ####Performance
-This investigator was fully prepared to cross-validate tuning parameters and stack multiple models to improve prediction. However, the **99.94% accuracy on the validation set** using the xgboost algorithm with default settings led directly to an assessment on the test set. The test set performed even better, with 0 misclassifications. The 95% confidence interval was shown to be **95% CI : (0.9981, 1) on the hold-out test set.** At this point it seemed foolish not to attempt the prediction portion of the course assessment. This resulted in 20 correct predictions out of 20 trials.
+This investigator was fully prepared to cross-validate tuning parameters and stack multiple models to improve prediction. However, the **99.94% accuracy on the validation set** achieved using the xgboost algorithm with default settings led directly to an assessment on the test set. 
+
+The test set performed even better, with 0 misclassifications. The 95% confidence interval was shown to be **95% CI : (0.9981, 1) on the hold-out test set of 1929 observations.** At this point it seemed foolish not to attempt the prediction portion of the course assessment. This resulted in 20 correct predictions out of 20 trials.
+
+The confusion matrix for the test set is shown here.
+
+```{r, echo=F}
+preds <- predict(fit1, testing)
+confusionMatrix(preds, testing$classe)
+```
 
 The xgbTree algorithm is well-optimized for speed and fully utilized all 6 hyper-threaded cores (12 virtual CPUs) during the model calculation. Memory use was modest, around 5GB. The elapsed time of the computation was around 13 minutes.
 
