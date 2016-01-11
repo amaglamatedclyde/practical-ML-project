@@ -1,14 +1,39 @@
 ---
-title: "PML Project"
+title: "Classification of the Qualitative Evaluation of Weight Lifting Exercises"
 author: "Clyde Tressler"
-date: "January 9, 2016"
+date: "January 10, 2016"
 output: html_document
 ---
 
-setwd("/home/clyde/practical-ML-project")
-#process training/validation sets
+####Summary
+We present an analysis of the classification of qualitative evaluations of weight-lifting exercises. 
+A boosted trees algorithm was trained on the [Weight Lifting Exercises Dataset](http://groupware.les.inf.puc-rio.br/static/WLE/WearableComputing_weight_lifting_exercises_biceps_curl_variations.csv). The prediction accuracy was found to be **99.6%** on a hold-out test set. This algorithm scored 20 out of 20 on a first attempt at the **Course Project Prediction Quiz Portion**.
+
+####Background
+<p>The data were originally collected and analyzed in this paper:</p>
+0.996 
+**Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. [Qualitative Activity Recognition of Weight Lifting Exercises](http://groupware.les.inf.puc-rio.br/work.jsf?p1=11201). Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.**
+
+The authors describe the dataset as follows:
+
+<div text-align="center">
+<p>*Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E). Class A corresponds to the specified execution of the exercise, while the other 4 classes correspond to common mistakes.*</p>
+</div>
+Here we show a table of the occernces of the five classes in the training set.
+
+```{r, echo=FALSE, message=FALSE}
+library(dplyr)
+#setwd("/home/clyde/practical-ML-project")
 train.valid <- read.csv("pml-training.csv")
-test <- read.csv("pml-testing.csv")
+table(train.valid$classe)
+```
+
+####Exploring and Tidying the Data
+
+Exploration of the data show many sparse columns for which 97.93% of the values are NAs. These variables will not be included in the anaysis. For bresvity, The R code for these cleaning steps has not been included but can be fouind in this [github repository](https://github.com/amaglamatedclyde/practical-ML-project). The reamining variables are free of NA values and are consudered to be candidates for inclusin in the anaysis. Because we intend to use a boosted tree algorithm, collinearity of the reamining varaibles is not investigated at this step.
+
+```{r, echo=F, include=FALSE}
+#here we check to see the frequency of occurences of NA in the columns as a percentage. 
 f <- function(c){all(is.na(c))}
 f2 <- function(c){any(is.na(c))}
 apply(train.valid, 2, f)
@@ -19,14 +44,18 @@ f1 <- function(c){sum(is.na(c))/length(c)*100}
 apply(train.valid, 2, f1)
 apply(train.valid, 2, f1) >50
 sum(apply(train.valid, 2, f1) >50)
+#lots of columns with a lot of NAs all >97%
 a <- apply(train.valid, 2, f1)
 #lots of columns with a lot of NAs all >97%
 sum(a>0&a<97)
-which(a>97)
 many.na <- names(which(a>97))
-library(dplyr)
- sum(train.valid$new_window=='no')
-[1] 19216
+train.valid <- select(train.valid, -one_of(many.na))
+```
+
+Next we observe that the column labelled 'X' is just an index number and is not a valid predictor. Several variables are timestamps. Since we are intersted in classifying individual observations, these can also be excluded. Also, we search the columns for near zero variance variables and threshold this at a frequency ratio of 60 to eliminate the follwing predictors:
+
+```{r, include=F}
+sum(train.valid$new_window=='no')
 sum(train.valid$new_window=='no')/nrow(train.valid)
 train.valid <- select(train.valid, -new_window)
 f3 <- function(c){levels(c)==2}
@@ -36,14 +65,48 @@ train.valid <- select(train.valid, -X)
 #we don't want time-dependent data
 library(caret)
 train.valid <- select(train.valid, -contains('timestamp'))
+#leave out nzv vars
 nzv <- nearZeroVar(train.valid[-88], saveMetrics= TRUE) #find nzv vars
 nzv <- subset(nzv, freqRatio>60&nzv) #threshold nzv vars
+train.valid <- select(train.valid, -one_of(rownames(nzv)))
+```
+
+```{r, echo=F}
+nzv
+```
+
+####Training the Classifier
+
+An examination of the training dataset shows that is has been sorted according to the class outcome. We therefor use the following methodolgy to randomly sample the rows, creating a training, validation and test set to build and evaluate our model. Here we use the validation set to tune the model and the testing set is our hold-out set. We choose a validation set that is nearly twice the size of the testing set so we can evalutate the bias of the model using the larger number of samples in the validation set and the variance of the model using the smaller number of observations in the testing set.
+
+```{r, output="hide"}
 set.seed(314159)
-inTrain <- createDataPartition(y=train.valid$classe, p=0.9, list=FALSE)
-training <- train.valid[inTrain,]
-testing <- train.valid[-inTrain,]
-inTrain <- createDataPartition(y=training$classe, p=0.8, list=FALSE)
-train <- training[inTrain,]
-validation <- training[-inTrain,]
+unloadNamespace('dplyr')
+include <- sample(c(FALSE, TRUE), size=nrow(train.valid), replace=T, prob=c(0.1, 0.9))
+training <- train.valid[include,]
+testing <- train.valid[!include,]
+include <- sample(c(FALSE, TRUE), size=nrow(training), replace=T, prob=c(0.2, 0.8))
+train <- training[include,]
+validation <- training[!include,]
+```
+
+```{r, include=F, cache=T}
 library(caret)
 training <- train
+# which(names(training2)=="num_window")
+training <- training[-2]
+fit1 <- train(classe~., data=training, method="xgbTree")
+preds <- predict(fit1, testing)
+```
+####Choosing an Algorithm
+Our initial choice of an algorith for our classification model is [Extreme Gradient Boosting](http://startup.ml/blog/xgboost), which has garnered a reputation for extraordinary out-of-the-box **(OOB)** performance on [kaggle.com](kaggle.com) competitions. 
+
+We train on a set of **14220** observations in the **training set** and evaluate predictions on the **3473** observations in the validation set. The confuion matrix is shown below. 
+
+```{r, echo=F}
+confusionMatrix(preds, testing$classe)
+```
+####Performance on the Course Prediction Assignment
+This investigator was fully prepared to cross-validate tuning parameters and stack multiple models to improve prediction. However, the 99.94% accuracy of the OOB predictions of the xgboost algorithm led directly to an assesment on the test set, which showed similar accuracy. At this point it seemed foolish not to attmept the prediction portion of the course assessment. This resulted in 20 correct predictions out of 20 trials.
+
+Admittedly, this success is mostly attributable to the power of the XGBoost algorithm, which is mostly a black box to this investigator. It can be assumed however that the predictor selection process
