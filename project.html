@@ -64,19 +64,20 @@ img {
 <hr />
 <hr />
 <div style="text-align:center;">
-<h2>Classification of the Qualitative Evaluation of Weight Lifting Exercises</h2>
+<h2>Classification of the Qualitative Evaluation of</h2>
+<h2>Weight Lifting Exercises</h2>
 <h3><em>Clyde Tressler</em></h3>
 January 10, 2016
 </div>
 <div id="summary" class="section level4">
 <h4>Summary</h4>
-<p>We present an analysis of the classification of qualitative evaluations of weight-lifting exercises. A boosted trees algorithm was trained on the <a href="http://groupware.les.inf.puc-rio.br/static/WLE/WearableComputing_weight_lifting_exercises_biceps_curl_variations.csv">Weight Lifting Exercises Dataset</a>. **The model scored perfectly on a hold-out test set, with 0 misclassifications and a 95% confidence interval of (0.9981, 1) “<strong>. This algorithm scored 20 out of 20 on a first attempt at the </strong>Course Project Prediction Quiz Portion**.</p>
+<p>We present an analysis of the classification of qualitative evaluations of weight-lifting exercises. A boosted trees algorithm was trained on the <a href="http://groupware.les.inf.puc-rio.br/static/WLE/WearableComputing_weight_lifting_exercises_biceps_curl_variations.csv">Weight Lifting Exercises Dataset</a>. The model scored perfectly on a hold-out test set, with 0 misclassifications and a <strong>95% confidence interval of (0.9981, 1)</strong>. The model also scored <strong>20 out of 20 on its first attempt</strong> at the Course Project Prediction Quiz Portion.</p>
 </div>
 <div id="a-note-on-terminology" class="section level4">
 <h4>A Note on Terminology</h4>
 In this report we use the terminology <strong>validation set</strong> and <strong>test set</strong> to refer to a <em>tuning</em> and <em>hold-out</em> set respectively. This is consistent with <strong><a href="http://statweb.stanford.edu/~tibs/ElemStatLearn/">The Elements of Statistical Learning</a></strong>(Hastie et al.) page 222. This is widely recognized as a seminal text in the field:
 <div style="text-align:center;">
-<em>“The training set is used to fit the models; the validation set is used to estimate prediction error for model selection; the test set is used for assessment of the generalization error of the final chosen model.”</em>
+</br> <em>“The training set is used to fit the models; the validation set is used to estimate prediction error for model selection; the test set is used for assessment of the generalization error of the final chosen model.”</em>
 </div>
 </div>
 <div id="background" class="section level4">
@@ -98,9 +99,9 @@ The data were originally collected and analyzed in this paper:
 </div>
 <div id="exploring-and-tidying-the-data" class="section level4">
 <h4>Exploring and Tidying the Data</h4>
-<p>Exploration of the data show many sparse columns for which 97.93% of the values are NAs. These variables will not be included in the analysis. For brevity, the R code for these cleaning steps has not been included but can be found in this <a href="https://github.com/amaglamatedclyde/practical-ML-project">github repository</a>.</p>
+<p>Exploration of the data show many sparse columns for which 97.93% of the values are NAs. These variables will not be included in the analysis. For brevity, the R code for these cleaning steps has not been included here but can be found in this <a href="https://github.com/amaglamatedclyde/practical-ML-project">github repository</a>.</p>
 <p>The remaining variables are free of NA values and are considered to be candidates for inclusion in the analysis. Because we intend to use a boosted tree algorithm, collinearity of these variables is not investigated at this step.</p>
-<p>Next we observe that the column labeled ‘X’ is just an index number and therefor not a valid predictor. Several variables are timestamps. Since we are interested in classifying individual observations, these timestamp columns can also be excluded. Also, we search the columns for near zero variance variables and threshold this at a conservative frequency ratio of 60 to eliminate the following predictors:<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
+<p>Next we observe that the column labeled ‘X’ is merely an index number and therefor not a valid predictor. Several variables are timestamps. Since we are interested in classifying individual observations, these timestamp columns can also be excluded. Also, we search the columns for near zero variance variables and threshold this at a conservative frequency ratio of 60 to eliminate the following predictors:<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
 <pre><code>##                         freqRatio percentUnique zeroVar  nzv
 ## kurtosis_roll_belt      1921.6000     2.0232392   FALSE TRUE
 ## kurtosis_picth_belt      600.5000     1.6155336   FALSE TRUE
@@ -129,7 +130,8 @@ The data were originally collected and analyzed in this paper:
 </div>
 <div id="training-the-classifier" class="section level4">
 <h4>Training the Classifier</h4>
-<p>An examination of the training dataset shows that is has been sorted according to the class outcome. We therefor use the following methodology to randomly sample the rows, creating a training, validation and test set to build and evaluate our model. Here we use the validation set to tune the model and the testing set as our hold-out set. We choose a validation set that is nearly twice the size of the testing set so we can evaluate the bias of the model using the larger number of samples in the validation set and the variance of the model using the smaller number of observations in the testing set.</p>
+<p>Because of the large number of observations, we choose a <strong>training, validation, test set</strong> approach over cross-validation.</p>
+<p>An examination of the dataset shows that is has been sorted according to the class outcome. We therefor use the following methodology to randomly sample the rows, creating a training, validation and test set to build and evaluate our model. Here, as mentioned previously, we use the validation set to tune the model and the testing set as our hold-out set. We choose a validation set that is nearly twice the size of the testing set so we can evaluate the bias of the model using the larger number of samples in the validation set and the variance of the model using the smaller number of observations in the testing set.</p>
 <pre class="r"><code>set.seed(314159)
 unloadNamespace('dplyr')
 include &lt;- sample(c(FALSE, TRUE), size=nrow(train.valid), replace=T, prob=c(0.1, 0.9))
@@ -142,7 +144,7 @@ validation &lt;- training[!include,]</code></pre>
 <div id="choosing-an-algorithm" class="section level4">
 <h4>Choosing an Algorithm</h4>
 <p>Our initial choice of an algorithm for our classification model is <a href="http://startup.ml/blog/xgboost">Extreme Gradient Boosting</a>, which has garnered a reputation for extraordinary out-of-the-box <strong>(OOB)</strong> performance on <a href="http://kaggle.com">kaggle.com</a> competitions.</p>
-<p>We train on a set of <strong>14220</strong> observations in the <strong>training set</strong> and evaluate predictions on the <strong>3473</strong> observations in the validation set. The confusion matrix for the validation set is shown below.</p>
+<p>We train on a set of <strong>14220</strong> observations in the <strong>training set</strong> and evaluate predictions on the <strong>3473</strong> observations in the validation set. The confusion matrix for the validation set is shown below. Note that there are only 2 misclasssifications.<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></p>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
@@ -177,8 +179,8 @@ validation &lt;- training[!include,]</code></pre>
 </div>
 <div id="performance" class="section level4">
 <h4>Performance</h4>
-<p>This investigator was fully prepared to cross-validate tuning parameters and stack multiple models to improve prediction. However, the <strong>99.94% accuracy on the validation set</strong> achieved using the xgboost algorithm with default settings led directly to an assessment on the test set.</p>
-<p>The test set performed even better, with 0 misclassifications. The 95% confidence interval was shown to be <strong>95% CI : (0.9981, 1) on the hold-out test set of 1929 observations.</strong> At this point it seemed foolish not to attempt the prediction portion of the course assessment. This resulted in 20 correct predictions out of 20 trials.</p>
+<p>This investigator was fully prepared to cross-validate model tuning parameters and stack multiple models to improve prediction<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. However, the <strong>99.94% accuracy on the validation set</strong> achieved using the xgboost algorithm with <em>default</em> settings led directly to an assessment on the test set.</p>
+<p>The test set performed even better, with 0 misclassifications. The <strong>95% confidence interval</strong> was shown to be <strong>(0.9981, 1) on the hold-out test set of 1929 observations.</strong> At this point it seemed foolish not to attempt the prediction portion of the course assessment. This resulted in 20 correct predictions out of 20 trials.</p>
 <p>The confusion matrix for the test set is shown here.</p>
 <pre><code>## Confusion Matrix and Statistics
 ## 
@@ -211,13 +213,20 @@ validation &lt;- training[!include,]</code></pre>
 ## Detection Rate         0.2898    0.183   0.1628   0.1737   0.1908
 ## Detection Prevalence   0.2898    0.183   0.1628   0.1737   0.1908
 ## Balanced Accuracy      1.0000    1.000   1.0000   1.0000   1.0000</code></pre>
-<p>The xgbTree algorithm is well-optimized for speed and fully utilized all 6 hyper-threaded cores (12 virtual CPUs) during the model calculation. Memory use was modest, around 5GB. The elapsed time of the computation was around 13 minutes.</p>
-<p>Admittedly, the success of this effort is mostly attributable to the power of the XGBoost algorithm, and that is somewhat of a black box to this investigator. It can be assumed, however, that the predictor selection process was also crucial to the success of the algorithm.</p>
+<p>The xgbTree algorithm is well-optimized for speed and fully utilized all 6 hyper-threaded cores (12 virtual CPUs) during the model calculation. Memory use was modest, around 5GB. The elapsed time of the computation was approximately 13 minutes.</p>
+<p>Admittedly, the success of this effort is mostly attributable to the power of the XGBoost algorithm, elements of which are something of a black box to this investigator<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>. It can be assumed, however, that the predictor selection process (my part) was also crucial to the success of the algorithm.</p>
+</div>
+<div id="a-final-note-on-the-prediction-assignment" class="section level4">
+<h4>A Final Note on the Prediction Assignment</h4>
+<p>The 20 observations in the set of prediction observations were found to have NA values for some factor variables. These turned out to be sparse columns that were not eliminated in our exploratory phase. A choice presented itself: relevel the test observations or eliminate the factor variables in question from the model. A new model without the factor variables was evaluated against the validation set and was shown to have the same accuracy, so this was the final model used for the prediction portion of this assignment. This part of the assignment has not been included here.</p>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>Near-zero variance means that the fraction of unique values over the sample size is low (say 10%)… and the ratio of the frequency of the most prevalent value to the frequency of the second most prevalent value is large (say around 20). If both of these criteria are true and the model in question is susceptible to this type of predictor, it may be advantageous to remove the variable from the model. (Kuhn, M., &amp; Johnson, K. (2013). <strong>Applied Predictive Modeling</strong>, New York, NY: Springer)<a href="#fnref1">↩</a></p></li>
+<li id="fn1"><p>“Near-zero variance means that the fraction of unique values over the sample size is low (say 10%)… and the ratio of the frequency of the most prevalent value to the frequency of the second most prevalent value is large (say <strong>around 20</strong>). If both of these criteria are true and the model in question is susceptible to this type of predictor, it may be advantageous to remove the variable from the model.” (Kuhn, M., &amp; Johnson, K. (2013). <strong>Applied Predictive Modeling</strong>, New York, NY: Springer)<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>This is astounding to me, but you can try it yourself thanks to Reproducible Research.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>Here is another interesting article on gradient boosting: <a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3885826/" class="uri">http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3885826/</a><a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>Here is another interesting article on gradient boosting: <a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3885826/" class="uri">http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3885826/</a><a href="#fnref4">↩</a></p></li>
 </ol>
 </div>
 
