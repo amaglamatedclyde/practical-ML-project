@@ -160,3 +160,19 @@ Admittedly, the success of this effort is mostly attributable to the power of th
 
 ####A Final Note on the Prediction Assignment
 The 20 observations in the set of prediction observations were found to have NA values for some factor variables. These turned out to be sparse columns that were not eliminated in our exploratory phase. A choice presented itself: relevel the test observations or eliminate the factor variables in question from the model. A new model without the factor variables was evaluated against the validation set and was shown to have the same accuracy, so this was the final model used for the prediction portion of this assignment. This part of the assignment has not been included here.
+
+```{r test observations, include=FALSE}
+######test data
+######here we remove the factor columns and fit a new model. accuracy stays the same
+# names(testing)
+# library(dplyr)
+# sapply(training[which(factors==T)], levels)
+# factors <- which(factors==T)
+# factors <- factors[-64]
+# factors <- factors[-1]
+# training2 <- training[-factors]
+# fit2 <- train(classe~., data=training2, method="xgbTree")
+# n <- names(training2)
+# n <- n[-55]
+# test <- select(test, one_of(n))
+```
