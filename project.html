@@ -71,13 +71,13 @@ January 10, 2016
 </div>
 <div id="summary" class="section level4">
 <h4>Summary</h4>
-<p>We present an analysis of the classification of qualitative evaluations of weight-lifting exercises. A boosted trees algorithm was trained on the <a href="http://groupware.les.inf.puc-rio.br/static/WLE/WearableComputing_weight_lifting_exercises_biceps_curl_variations.csv">Weight Lifting Exercises Dataset</a>. The model scored perfectly on a hold-out test set, with 0 misclassifications and a <strong>95% confidence interval of (0.9981, 1)</strong>. The model also scored <strong>20 out of 20 on its first attempt</strong> at the Course Project Prediction Quiz Portion.</p>
+<p>We present an analysis of the classification of qualitative evaluations of weight-lifting exercises. A boosted trees algorithm was trained on the <a href="http://groupware.les.inf.puc-rio.br/har">Weight Lifting Exercises Dataset</a>. The model scored perfectly on a hold-out test set, with 0 misclassifications and a <strong>95% confidence interval of (0.9981, 1)</strong>. The model also scored <strong>20 out of 20 on its first attempt</strong> at the Course Project Prediction Quiz.</p>
 </div>
 <div id="a-note-on-terminology" class="section level4">
 <h4>A Note on Terminology</h4>
-In this report we use the terminology <strong>validation set</strong> and <strong>test set</strong> to refer to a <em>tuning</em> and <em>hold-out</em> set respectively. This is consistent with <strong><a href="http://statweb.stanford.edu/~tibs/ElemStatLearn/">The Elements of Statistical Learning</a></strong>(Hastie et al.) page 222. This is widely recognized as a seminal text in the field:
+In this report we use the terminology <strong>validation set</strong> and <strong>test set</strong> to refer to a <em>tuning</em> and <em>hold-out</em> set respectively. This is consistent with </br> <strong><a href="http://statweb.stanford.edu/~tibs/ElemStatLearn/">The Elements of Statistical Learning</a></strong>(Hastie et al.), widely recognized as a seminal text in the field. From page 222:
 <div style="text-align:center;">
-</br> <em>“The training set is used to fit the models; the validation set is used to estimate prediction error for model selection; the test set is used for assessment of the generalization error of the final chosen model.”</em>
+</br> <em>“The training set is used to fit the models; the validation set is used to estimate prediction error for model selection; the test set is used for assessment of the generalization error of the final chosen model.”</em>[^mynote1]: This is astounding to me, but you can try it yourself thanks to Reproducible Research.
 </div>
 </div>
 <div id="background" class="section level4">
@@ -89,7 +89,7 @@ The data were originally collected and analyzed in this paper:
 <p>The authors describe the dataset as follows:</p>
 <div text-align="center">
 <p>
-<em>Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E). Class A corresponds to the specified execution of the exercise, while the other 4 classes correspond to common mistakes.</em>
+<em>“Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E). Class A corresponds to the specified execution of the exercise, while the other 4 classes correspond to common mistakes.”</em>
 </p>
 </div>
 <p>Here we show a table of the occurrences of the five classes in the training set. Note that the ‘mistake’ classes have similar sample numbers and the ‘correctly performed’ class is greater than any other individual class.</p>
@@ -225,7 +225,7 @@ validation &lt;- training[!include,]</code></pre>
 <ol>
 <li id="fn1"><p>“Near-zero variance means that the fraction of unique values over the sample size is low (say 10%)… and the ratio of the frequency of the most prevalent value to the frequency of the second most prevalent value is large (say <strong>around 20</strong>). If both of these criteria are true and the model in question is susceptible to this type of predictor, it may be advantageous to remove the variable from the model.” (Kuhn, M., &amp; Johnson, K. (2013). <strong>Applied Predictive Modeling</strong>, New York, NY: Springer)<a href="#fnref1">↩</a></p></li>
 <li id="fn2"><p>This is astounding to me, but you can try it yourself thanks to Reproducible Research.<a href="#fnref2">↩</a></p></li>
-<li id="fn3"><p>Here is another interesting article on gradient boosting: <a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3885826/" class="uri">http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3885826/</a><a href="#fnref3">↩</a></p></li>
+<li id="fn3"><p>Seriously- you can’t get beter than accuracy of 1 (see test set accuracy). Aside from the pleasure of an intellectual pursuit, why go further?<a href="#fnref3">↩</a></p></li>
 <li id="fn4"><p>Here is another interesting article on gradient boosting: <a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3885826/" class="uri">http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3885826/</a><a href="#fnref4">↩</a></p></li>
 </ol>
 </div>
