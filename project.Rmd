@@ -11,17 +11,19 @@ January 10, 2016
 </div>
 ####Summary
 We present an analysis of the classification of qualitative evaluations of weight-lifting exercises. 
-A boosted trees algorithm was trained on the [Weight Lifting Exercises Dataset](http://groupware.les.inf.puc-rio.br/har). The model scored perfectly on a hold-out test set, with 0 misclassifications and a **95% confidence interval of (0.9981, 1)**. The model also scored **20 out of 20 on its first attempt** at the Course Project Prediction Quiz. 
+A boosted trees algorithm was trained on the [Weight Lifting Exercises Dataset](http://groupware.les.inf.puc-rio.br/har). The model scored perfectly on a hold-out test set, with 0 misclassifications and a **95% confidence interval of (0.9981, 1)**. The model also scored **20 out of 20 on its first attempt** at the Course Project Prediction Quiz.[^mynote1] 
+
+[^mynote1]: This is astounding to me, but you can try it yourself thanks to Reproducible Research.
 
 ####A Note on Terminology
 In this report we use the terminology **validation set** and **test set** to refer to a *tuning* and *hold-out* set respectively. 
 This is consistent with </br> 
-**[The Elements of Statistical Learning](http://statweb.stanford.edu/~tibs/ElemStatLearn/)**(Hastie et al.), widely recognized as a seminal text in the field. From page 222:
+**[The Elements of Statistical Learning](http://statweb.stanford.edu/~tibs/ElemStatLearn/)** (Hastie et al.), widely recognized as a seminal text in the field. From page 222:
 <div style="text-align:center;">
 </br>
 *"The training set is used to fit the models; the validation
 set is used to estimate prediction error for model selection; the test set is
-used for assessment of the generalization error of the final chosen model."*[^mynote1]: This is astounding to me, but you can try it yourself thanks to Reproducible Research.
+used for assessment of the generalization error of the final chosen model."*
 </div>
 
 ####Background
@@ -38,7 +40,7 @@ Here we show a table of the occurrences of the five classes in the training set.
 
 ```{r, echo=FALSE, message=FALSE}
 library(dplyr)
-#setwd("/home/clyde/practical-ML-project")
+setwd("/home/clyde/practical-ML-project")
 train.valid <- read.csv("pml-training.csv")
 table(train.valid$classe)
 ```
