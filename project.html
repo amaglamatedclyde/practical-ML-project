@@ -180,7 +180,8 @@ validation &lt;- training[!include,]</code></pre>
 <div id="performance" class="section level4">
 <h4>Performance</h4>
 <p>This investigator was fully prepared to cross-validate model tuning parameters and stack multiple models to improve prediction<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>. However, the <strong>99.94% accuracy on the validation set</strong> achieved using the xgboost algorithm with <em>default</em> settings led directly to an assessment on the test set.</p>
-<p>The test set performed even better, with 0 misclassifications. The <strong>95% confidence interval</strong> was shown to be <strong>(0.9981, 1) on the hold-out test set of 1929 observations.</strong> At this point it seemed foolish not to attempt the prediction portion of the course assessment. This resulted in 20 correct predictions out of 20 trials.</p>
+<p>The test set performed even better, with 0 misclassifications. The <strong>95% confidence interval</strong> was shown to be <strong>(0.9981, 1) on the hold-out test set of 1929 observations.</strong> This gives a corresponding <strong>out-of-sample error rate interval of (0,0.0019).</strong></p>
+<p>At this point it seemed foolish not to attempt the prediction portion of the course assessment. This resulted in 20 correct predictions out of 20 trials.</p>
 <p>The confusion matrix for the test set is shown here.</p>
 <pre><code>## Confusion Matrix and Statistics
 ## 

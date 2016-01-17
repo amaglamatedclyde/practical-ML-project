@@ -143,7 +143,9 @@ confusionMatrix(preds, validation$classe)
 ####Performance
 This investigator was fully prepared to cross-validate model tuning parameters and stack multiple models to improve prediction[^mynote4]. However, the **99.94% accuracy on the validation set** achieved using the xgboost algorithm with *default* settings led directly to an assessment on the test set. 
 
-The test set performed even better, with 0 misclassifications. The **95% confidence interval** was shown to be **(0.9981, 1) on the hold-out test set of 1929 observations.** At this point it seemed foolish not to attempt the prediction portion of the course assessment. This resulted in 20 correct predictions out of 20 trials.
+The test set performed even better, with 0 misclassifications. The **95% confidence interval** was shown to be **(0.9981, 1) on the hold-out test set of 1929 observations.** This gives a corresponding **out-of-sample error rate interval of (0,0.0019).**
+
+At this point it seemed foolish not to attempt the prediction portion of the course assessment. This resulted in 20 correct predictions out of 20 trials.
 
 [^mynote4]: Seriously- you can't get beter than accuracy of 1 (see test set accuracy). Aside from the pleasure of an intellectual pursuit, why go further? 
 
