@@ -144,11 +144,11 @@ validation &lt;- training[!include,]</code></pre>
 <div id="choosing-an-algorithm" class="section level4">
 <h4>Choosing an Algorithm</h4>
 <p>Our initial choice of an algorithm for our classification model is <a href="http://startup.ml/blog/xgboost">Extreme Gradient Boosting</a>, which has garnered a reputation for extraordinary out-of-the-box <strong>(OOB)</strong> performance on <a href="http://kaggle.com">kaggle.com</a> competitions.</p>
-<p>We train on a set of <strong>14220</strong> observations in the <strong>training set</strong> and evaluate predictions on the <strong>3473</strong> observations in the validation set. The confusion matrix for the validation set is shown below. Note that there are only 2 misclasssifications.<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></p>
 <p>Here we show the code for training the model. We tested the model with <strong>10-fold cross-validation</strong> but found that <strong>bootstrap resampling</strong> yielded better accuracy.</p>
 <pre class="r"><code># control &lt;- trainControl(method = &quot;cv&quot;, number=10) bootstrap performs better
 fit1 &lt;- train(classe~., data=training, method=&quot;xgbTree&quot;)
 preds &lt;- predict(fit1, validation)</code></pre>
+<p>We train on a set of <strong>14220</strong> observations in the <strong>training set</strong> and evaluate predictions on the <strong>3473</strong> observations in the validation set. The confusion matrix for the validation set is shown below. Note that there are only 2 misclasssifications.<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></p>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference

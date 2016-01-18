@@ -130,16 +130,17 @@ training <- train
 ####Choosing an Algorithm
 Our initial choice of an algorithm for our classification model is [Extreme Gradient Boosting](http://startup.ml/blog/xgboost), which has garnered a reputation for extraordinary out-of-the-box **(OOB)** performance on [kaggle.com](http://kaggle.com) competitions.
 
-We train on a set of **14220** observations in the **training set** and evaluate predictions on the **3473** observations in the validation set. The confusion matrix for the validation set is shown below. Note that there are only 2 misclasssifications.[^mynote3]
-
-[^mynote3]: This is astounding to me, but you can try it yourself thanks to Reproducible Research.
-
 Here we show the code for training the model. We tested the model with **10-fold cross-validation** but found that **bootstrap resampling** yielded better accuracy.
 ```{r, echo=T, message=F}
 # control <- trainControl(method = "cv", number=10) bootstrap performs better
 fit1 <- train(classe~., data=training, method="xgbTree")
 preds <- predict(fit1, validation)
 ```
+
+We train on a set of **14220** observations in the **training set** and evaluate predictions on the **3473** observations in the validation set. The confusion matrix for the validation set is shown below. Note that there are only 2 misclasssifications.[^mynote3]
+
+[^mynote3]: This is astounding to me, but you can try it yourself thanks to Reproducible Research.
+
 
 ```{r, echo=F}
 confusionMatrix(preds, validation$classe)
