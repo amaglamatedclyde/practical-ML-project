@@ -102,9 +102,10 @@ Because of the large number of observations, we choose a **training, validation,
 
 An examination of the dataset shows that is has been sorted according to the class outcome. We therefor use the following methodology to randomly sample the rows, creating a training, validation and test set to build and evaluate our model. Here, as mentioned previously, we use the validation set to tune the model and the testing set as our hold-out set. We choose a validation set that is nearly twice the size of the testing set so we can evaluate the bias of the model using the larger number of samples in the validation set and the variance of the model using the smaller number of observations in the testing set.
 
-```{r, output="hide"}
+```{r, output="hide", include=F}
 set.seed(314159)
 unloadNamespace('dplyr')
+library(plyr)
 include <- sample(c(FALSE, TRUE), size=nrow(train.valid), replace=T, prob=c(0.1, 0.9))
 training <- train.valid[include,]
 testing <- train.valid[!include,]
@@ -120,28 +121,32 @@ training <- train
 # training <- training[-2]
 # fitControl <- trainControl(## 10-fold CV
 #                            method = "cv",
-#                            number = 10)fit1 <- system.time(train(classe~., data=training, method="xgbTree"))
+#                            number = 10)fit1 <- system.time(train(classe~., data=training, method="xgbTree")) accuracy is lower
 #                            ## repeated ten times
 #                            # repeats = 10)
 # fit1 <- system.time(train(classe~., data=training, method="xgbTree"))
 #     user   system  elapsed 
 # 8971.363    5.527  796.503
-fit1 <- train(classe~., data=training, method="xgbTree")
-preds <- predict(fit1, validation)
 ```
 ####Choosing an Algorithm
-Our initial choice of an algorithm for our classification model is [Extreme Gradient Boosting](http://startup.ml/blog/xgboost), which has garnered a reputation for extraordinary out-of-the-box **(OOB)** performance on [kaggle.com](http://kaggle.com) competitions. 
+Our initial choice of an algorithm for our classification model is [Extreme Gradient Boosting](http://startup.ml/blog/xgboost), which has garnered a reputation for extraordinary out-of-the-box **(OOB)** performance on [kaggle.com](http://kaggle.com) competitions.
 
 We train on a set of **14220** observations in the **training set** and evaluate predictions on the **3473** observations in the validation set. The confusion matrix for the validation set is shown below. Note that there are only 2 misclasssifications.[^mynote3]
 
 [^mynote3]: This is astounding to me, but you can try it yourself thanks to Reproducible Research.
 
+Here we show the code for training the model. We tested the model with **10-fold cross-validation** but found that **bootstrap resampling** yielded better accuracy.
+```{r, echo=T, message=F}
+# control <- trainControl(method = "cv", number=10) bootstrap performs better
+fit1 <- train(classe~., data=training, method="xgbTree")
+preds <- predict(fit1, validation)
+```
 
 ```{r, echo=F}
 confusionMatrix(preds, validation$classe)
 ```
 ####Performance
-This investigator was fully prepared to cross-validate model tuning parameters and stack multiple models to improve prediction[^mynote4]. However, the **99.94% accuracy on the validation set** achieved using the xgboost algorithm with *default* settings led directly to an assessment on the test set. 
+This investigator was fully prepared to stack multiple models to improve prediction[^mynote4]. However, the **99.94% accuracy on the validation set** achieved using the xgboost algorithm with bootstrap resampling led directly to an assessment on the test set. 
 
 The test set performed even better, with 0 misclassifications. The **95% confidence interval** was shown to be **(0.9981, 1) on the hold-out test set of 1929 observations.** This gives a corresponding **out-of-sample error rate interval of (0,0.0019).**
 
