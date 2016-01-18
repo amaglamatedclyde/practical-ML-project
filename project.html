@@ -132,6 +132,14 @@ The data were originally collected and analyzed in this paper:
 <h4>Training the Classifier</h4>
 <p>Because of the large number of observations, we choose a <strong>training, validation, test set</strong> approach over cross-validation.</p>
 <p>An examination of the dataset shows that is has been sorted according to the class outcome. We therefor use the following methodology to randomly sample the rows, creating a training, validation and test set to build and evaluate our model. Here, as mentioned previously, we use the validation set to tune the model and the testing set as our hold-out set. We choose a validation set that is nearly twice the size of the testing set so we can evaluate the bias of the model using the larger number of samples in the validation set and the variance of the model using the smaller number of observations in the testing set.</p>
+<pre class="r"><code>set.seed(314159)
+unloadNamespace('dplyr')
+include &lt;- sample(c(FALSE, TRUE), size=nrow(train.valid), replace=T, prob=c(0.1, 0.9))
+training &lt;- train.valid[include,]
+testing &lt;- train.valid[!include,]
+include &lt;- sample(c(FALSE, TRUE), size=nrow(training), replace=T, prob=c(0.2, 0.8))
+train &lt;- training[include,]
+validation &lt;- training[!include,]</code></pre>
 </div>
 <div id="choosing-an-algorithm" class="section level4">
 <h4>Choosing an Algorithm</h4>

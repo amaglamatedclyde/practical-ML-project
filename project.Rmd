@@ -102,10 +102,9 @@ Because of the large number of observations, we choose a **training, validation,
 
 An examination of the dataset shows that is has been sorted according to the class outcome. We therefor use the following methodology to randomly sample the rows, creating a training, validation and test set to build and evaluate our model. Here, as mentioned previously, we use the validation set to tune the model and the testing set as our hold-out set. We choose a validation set that is nearly twice the size of the testing set so we can evaluate the bias of the model using the larger number of samples in the validation set and the variance of the model using the smaller number of observations in the testing set.
 
-```{r, output="hide", include=F}
+```{r, output="hide"}
 set.seed(314159)
 unloadNamespace('dplyr')
-library(plyr)
 include <- sample(c(FALSE, TRUE), size=nrow(train.valid), replace=T, prob=c(0.1, 0.9))
 training <- train.valid[include,]
 testing <- train.valid[!include,]
